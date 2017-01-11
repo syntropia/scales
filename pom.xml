@@ -17,6 +17,10 @@
         <module>scales-query</module>
     </modules>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
     <dependencies>
         <!-- Source dependencies -->
         <dependency>
@@ -62,6 +66,7 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.1</version>
                     <configuration>
+
                         <!-- Target Java 8 -->
                         <source>1.8</source>
                         <target>1.8</target>
