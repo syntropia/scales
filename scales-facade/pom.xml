@@ -19,5 +19,11 @@
             <artifactId>scales-common</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>studio.lysid</groupId>
+            <artifactId>scales-query</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
+
 </project>

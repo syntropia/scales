@@ -6,6 +6,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import studio.lysid.scales.facade.FacadeVerticle;
+import studio.lysid.scales.query.QueryVerticle;
 
 @RunWith(VertxUnitRunner.class)
 public class FacadeVerticleTest {
@@ -15,8 +17,8 @@ public class FacadeVerticleTest {
     @Before
     public void setUp(TestContext context) {
         this.vertx = Vertx.vertx();
-        this.vertx.deployVerticle(FacadeVerticle.class.getName(),
-                context.asyncAssertSuccess());
+        this.vertx.deployVerticle(QueryVerticle.class.getName(), context.asyncAssertSuccess());
+        this.vertx.deployVerticle(FacadeVerticle.class.getName(), context.asyncAssertSuccess());
     }
 
     @After
@@ -31,7 +33,7 @@ public class FacadeVerticleTest {
         vertx.createHttpClient().getNow(8080, "localhost", "/",
                 response -> {
                     response.handler(body -> {
-                        context.assertTrue(body.toString().contains("Hello"));
+                        context.assertTrue(body.toString().contains("scale #42"));
                         async.complete();
                     });
                 });
