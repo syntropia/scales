@@ -13,4 +13,11 @@
     <artifactId>scales-facade</artifactId>
     <packaging>jar</packaging>
 
+    <dependencies>
+        <dependency>
+            <groupId>studio.lysid</groupId>
+            <artifactId>scales-common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 </project>
