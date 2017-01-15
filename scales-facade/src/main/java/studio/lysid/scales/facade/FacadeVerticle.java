@@ -22,7 +22,6 @@ public class FacadeVerticle extends AbstractVerticle {
     public void start(Future<Void> startFuture) throws Exception {
 
         ServiceDiscovery discovery = ServiceDiscovery.create(this.vertx);
-        logger.debug("start: service discovery created");
 
         // Resolve Query services
         Future<QueryScaleService> queryScaleServiceFuture = Future.future();
