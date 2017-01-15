@@ -1,4 +1,6 @@
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
@@ -6,6 +8,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import studio.lysid.scales.Defaults;
 import studio.lysid.scales.facade.FacadeVerticle;
 import studio.lysid.scales.query.QueryVerticle;
 
@@ -17,11 +20,18 @@ public class FacadeVerticleTest {
     @Before
     public void setUp(TestContext context) {
         this.vertx = Vertx.vertx();
-        this.vertx.deployVerticle(QueryVerticle.class.getName(), ar -> {
-            if (ar.succeeded()) {
-                this.vertx.deployVerticle(FacadeVerticle.class.getName(), context.asyncAssertSuccess());
+        this.vertx.deployVerticle(QueryVerticle.class.getName(), qvar -> {
+            if (qvar.succeeded()) {
+                DeploymentOptions options = new DeploymentOptions().setConfig(new JsonObject().put("http.port", Defaults.FacadeHttpPort));
+                this.vertx.deployVerticle(FacadeVerticle.class.getName(), options, fvar -> {
+                    if (fvar.succeeded()) {
+                        context.async().complete();
+                    } else {
+                        context.fail(fvar.cause());
+                    }
+                });
             } else {
-                context.fail(ar.cause());
+                context.fail(qvar.cause());
             }
         });
     }
@@ -35,8 +45,8 @@ public class FacadeVerticleTest {
     public void testSampleService(TestContext context) {
 
         final Async async = context.async();
-
-        vertx.createHttpClient().getNow(8080, "localhost", "/",
+        vertx.createHttpClient().getNow(
+                Defaults.FacadeHttpPort, "localhost", "/",
                 response -> {
                     response.handler(body -> {
                         context.assertTrue(body.toString().contains("scale #42"));
