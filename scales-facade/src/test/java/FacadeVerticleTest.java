@@ -17,8 +17,13 @@ public class FacadeVerticleTest {
     @Before
     public void setUp(TestContext context) {
         this.vertx = Vertx.vertx();
-        this.vertx.deployVerticle(QueryVerticle.class.getName(), context.asyncAssertSuccess());
-        this.vertx.deployVerticle(FacadeVerticle.class.getName(), context.asyncAssertSuccess());
+        this.vertx.deployVerticle(QueryVerticle.class.getName(), ar -> {
+            if (ar.succeeded()) {
+                this.vertx.deployVerticle(FacadeVerticle.class.getName(), context.asyncAssertSuccess());
+            } else {
+                context.fail(ar.cause());
+            }
+        });
     }
 
     @After
@@ -28,6 +33,7 @@ public class FacadeVerticleTest {
 
     @Test
     public void testSampleService(TestContext context) {
+
         final Async async = context.async();
 
         vertx.createHttpClient().getNow(8080, "localhost", "/",
