@@ -12,6 +12,7 @@ public class QueryScaleServiceImpl implements QueryScaleService {
 
     @Override
     public void findScaleById(String id, Handler<AsyncResult<String>> handler) {
+        logger.debug("findScaleById called with parameters: id={0}", id);
         handler.handle(Future.succeededFuture("This is the scale #" + id));
     }
 }

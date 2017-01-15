@@ -13,14 +13,13 @@ public class FacadeVerticle extends AbstractVerticle {
 
     private static final Logger logger = LoggerFactory.getLogger(FacadeVerticle.class.getName());
 
-    private EventBusServiceHelper eventBusServiceHelper;
     private QueryScaleService queryScaleService;
 
     @Override
     public void start(Future<Void> startFuture) throws Exception {
 
-        this.eventBusServiceHelper = new EventBusServiceHelper(this.vertx, logger);
-        this.queryScaleService = this.eventBusServiceHelper.getProxy(QueryScaleService.class, Service.QueryScale.address);
+        EventBusServiceHelper eventBusServiceHelper = new EventBusServiceHelper(this.vertx, logger);
+        this.queryScaleService = eventBusServiceHelper.getProxy(QueryScaleService.class, Service.QueryScale.address);
 
         int httpPort = this.config().getInteger("http.port", Defaults.FacadeHttpPort);
 

@@ -13,11 +13,9 @@ public class QueryVerticle extends AbstractVerticle {
 
     private final Logger logger = LoggerFactory.getLogger(QueryVerticle.class);
 
-    private EventBusServiceHelper eventBusServiceHelper;
-
     @Override
     public void start(Future<Void> startFuture) throws Exception {
-        this.eventBusServiceHelper = new EventBusServiceHelper(this.vertx, logger)
+        new EventBusServiceHelper(this.vertx, logger)
                 .publish(QueryScaleService.class, new QueryScaleServiceImpl(), Service.QueryScale.address);
         startFuture.complete();
     }

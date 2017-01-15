@@ -8,8 +8,6 @@ import studio.lysid.scales.deploy.EventBusService;
 @ProxyGen
 public interface QueryScaleService extends EventBusService {
 
-    static String eventBusAddress() { return "query-scale-service"; }
-
     void findScaleById(String id, Handler<AsyncResult<String>> handler);
 
 }
