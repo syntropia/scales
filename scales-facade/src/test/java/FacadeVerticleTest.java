@@ -46,10 +46,11 @@ public class FacadeVerticleTest {
 
         final Async async = context.async();
         vertx.createHttpClient().getNow(
-                Defaults.FacadeHttpPort, "localhost", "/",
+                Defaults.FacadeHttpPort, "localhost", "/scale/42",
                 response -> {
                     response.handler(body -> {
-                        context.assertTrue(body.toString().contains("scale #42"));
+                        System.out.println("TEST Received response: " + body.toString());
+                        context.assertTrue(body.toString().contains("#42"));
                         async.complete();
                     });
                 });
