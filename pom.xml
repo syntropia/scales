@@ -16,6 +16,7 @@
         <module>scales-command</module>
         <module>scales-event-store</module>
         <module>scales-query</module>
+        <module>scales-launcher</module>
     </modules>
 
     <properties>
@@ -64,7 +65,7 @@
 
 
     <build>
-        <!-- pluginManagement allow theses configurations to be applied also to child modules -->
+        <!-- pluginManagement shares theses configurations with child modules -->
         <pluginManagement>
             <plugins>
                 <!-- We specify the Maven compiler plugin as we need to set it to Java 1.8 -->
@@ -89,35 +90,6 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-        <plugins>
-            <!-- Package the whole application as a standalone runnable fat jar
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>2.3</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <manifestEntries>
-                                        <Main-Class>io.vertx.core.Starter</Main-Class>
-                                        <Main-Verticle>FacadeVerticle</Main-Verticle>
-                                    </manifestEntries>
-                                </transformer>
-                            </transformers>
-                            <artifactSet/>
-                            <outputFile>${project.build.directory}/${project.artifactId}-${project.version}-fat.jar</outputFile>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-             -->
-        </plugins>
     </build>
 
 </project>
