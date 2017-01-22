@@ -30,12 +30,24 @@ facade="studio.lysid.scales.facade.FacadeVerticle"
 #############################################################################
 
 startOrStopVerticle() {
-    if [ -z $1 ] || [ -z ${!2+x} ]; then
-        echo "The module $2 does not exist. Can be one of: eventstore, query, command or facade."
-        exit 1
-    else
-        java -jar ${SCRIPT_DIR}/scales-launcher.jar ${1} ${!2} -Dvertx-id=scales
-    fi
+    case $1 in
+        start)
+            if [ -z ${!2+x} ]; then
+                echo "The module $2 does not exist. Can be one of: eventstore, query, command or facade."
+                exit 1
+            else
+                java -jar ${SCRIPT_DIR}/scales.jar start run ${!2} --vertx-id=scales-${2}
+            fi
+        ;;
+        stop)
+            if [ -z ${!2+x} ]; then
+                echo "The module $2 does not exist. Can be one of: eventstore, query, command or facade."
+                exit 1
+            else
+                java -jar ${SCRIPT_DIR}/scales.jar stop scales-${2}
+            fi
+            ;;
+    esac
 }
 
 startStopVerticleByName() {
@@ -67,11 +79,14 @@ case $1 in
         startStopVerticleByName start $2
         exit 0
         ;;
+    status)
+        java -jar scales.jar list
+        ;;
     stop)
         startStopVerticleByName stop $2
         exit 0
         ;;
     *)
-        echo "First param must be either start or stop";
+        echo "First param must be either start, status or stop";
         exit 1
 esac
