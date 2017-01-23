@@ -58,7 +58,7 @@
                                 </transformer>
                             </transformers>
                             <artifactSet/>
-                            <outputFile>${project.build.directory}/${parent.artifactId}.jar</outputFile>
+                            <outputFile>${project.build.directory}/${project.parent.artifactId}.jar</outputFile>
                         </configuration>
                     </execution>
                 </executions>
