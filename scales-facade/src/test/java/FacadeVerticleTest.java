@@ -1,5 +1,6 @@
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpClient;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
@@ -45,14 +46,26 @@ public class FacadeVerticleTest {
     public void testSampleService(TestContext context) {
 
         final Async async = context.async();
-        vertx.createHttpClient().getNow(
-                Defaults.FacadeHttpPort, "localhost", "/scale/42",
+        HttpClient client = vertx.createHttpClient();
+
+        // Any id should be accepted in this first test implementation
+        client.getNow(
+                Defaults.FacadeHttpPort, "localhost", "/scale/13",
                 response -> {
                     response.handler(body -> {
-                        System.out.println("TEST Received response: " + body.toString());
-                        context.assertTrue(body.toString().contains("#42"));
-                        async.complete();
+                        context.assertTrue(body.toString().contains("#13"));
                     });
                 });
+
+        // Negative ids are incorrect, they should be rejected
+        client.getNow(
+                Defaults.FacadeHttpPort, "localhost", "/scale/-13",
+                response -> {
+                    response.handler(body -> {
+                        context.assertTrue(body.toString().contains("does not exist"));
+                    });
+                });
+
+        async.complete();
     }
 }

@@ -26,8 +26,11 @@ public class FacadeVerticle extends AbstractVerticle {
         this.eventBusServiceHelper = new EventBusServiceHelper(this.vertx, logger);
         this.router = Router.router(this.vertx);
 
-        bindClientResources();
         bindServicesOnRoutes();
+
+        // Static resources should be the last route because
+        // it binds everything else to the public folder static resources
+        bindClientStaticResources();
 
         int httpPort = this.config().getInteger("http.port", Defaults.FacadeHttpPort);
         vertx.createHttpServer()
@@ -44,7 +47,7 @@ public class FacadeVerticle extends AbstractVerticle {
                         });
     }
 
-    private void bindClientResources() {
+    private void bindClientStaticResources() {
         this.router.route(HttpMethod.GET, "/*").handler(StaticHandler.create("public"));
     }
 
@@ -54,16 +57,17 @@ public class FacadeVerticle extends AbstractVerticle {
 
     private void bindQueryServices() {
         QueryScaleService queryScaleService = eventBusServiceHelper.getProxy(QueryScaleService.class, Service.QueryScale.address);
-        router.route(HttpMethod.GET, "/scale/42").handler(routingContext -> {
+        router.route(HttpMethod.GET, "/scale/:id").handler(routingContext -> {
             HttpServerResponse response = routingContext.response();
             logger.info("Request received: " + routingContext.request().uri());
+            int id = Integer.parseInt(routingContext.request().getParam("id"));
 
             response.putHeader("content-type", "text/html");
-            queryScaleService.findScaleById("42", ar -> {
+            queryScaleService.findScaleById(id, ar -> {
                 if (ar.succeeded()) {
-                    response.end("<h1>Scale #42</h1><p>" + ar.result() + "</p>");
+                    response.end(ar.result().encodePrettily());
                 } else {
-                    response.end("Scale #42 does not exist!");
+                    response.setStatusCode(404).end("Scale #" + id + " does not exist!");
                 }
             });
         });
