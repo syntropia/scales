@@ -6,8 +6,8 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.mongo.MongoClient;
-import studio.lysid.scales.deploy.EventBusServiceHelper;
-import studio.lysid.scales.deploy.Service;
+import studio.lysid.scales.deploy.service.EventBusServiceHelper;
+import studio.lysid.scales.deploy.service.Service;
 import studio.lysid.scales.query.scale.QueryScaleService;
 import studio.lysid.scales.query.scale.QueryScaleServiceImpl;
 

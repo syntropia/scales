@@ -1,4 +1,4 @@
-package studio.lysid.scales.deploy;
+package studio.lysid.scales.deploy.service;
 
 public enum Service {
 

@@ -9,8 +9,8 @@ import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.StaticHandler;
 import studio.lysid.scales.Defaults;
-import studio.lysid.scales.deploy.EventBusServiceHelper;
-import studio.lysid.scales.deploy.Service;
+import studio.lysid.scales.deploy.service.EventBusServiceHelper;
+import studio.lysid.scales.deploy.service.Service;
 import studio.lysid.scales.query.scale.QueryScaleService;
 
 public class FacadeVerticle extends AbstractVerticle {

@@ -1,4 +1,4 @@
-package studio.lysid.scales.deploy;
+package studio.lysid.scales.deploy.service;
 
 import io.vertx.codegen.annotations.Fluent;
 import io.vertx.core.Vertx;
