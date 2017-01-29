@@ -8,7 +8,6 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.StaticHandler;
-import studio.lysid.scales.Defaults;
 import studio.lysid.scales.deploy.service.EventBusServiceHelper;
 import studio.lysid.scales.deploy.service.Service;
 import studio.lysid.scales.query.scale.QueryScaleService;
@@ -32,7 +31,7 @@ public class FacadeVerticle extends AbstractVerticle {
         // it binds everything else to the public folder static resources
         bindClientStaticResources();
 
-        int httpPort = this.config().getInteger("http.port", Defaults.FacadeHttpPort);
+        Integer httpPort = this.config().getInteger("http.port");
         vertx.createHttpServer()
                 .requestHandler(router::accept)
                 .listen(httpPort,
