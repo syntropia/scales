@@ -33,24 +33,31 @@ public class LauncherVerticle extends AbstractVerticle {
     }
 
     public static Future<Void> startVerticle(Vertx vertx, Verticle verticle) {
-        logger.info("Starting verticle [{0}]...", verticle.shortName);
-
         Future<Void> startFuture = Future.future();
-        if (verticle.implementation == null) {
-            /* TODO For initializing projects only */
+
+        int instancesToStart = verticle.deploymentOptions.getInstances();
+        if (instancesToStart == 0) {
             startFuture.complete();
-            logger.info("Verticle [{0}] not yet implemented, skipping.", verticle.shortName);
         } else {
-            logger.info("Deploying verticle class [{0}]", verticle.implementation.getName());
-            vertx.deployVerticle(verticle.implementation.getName(), verticle.deploymentOptions, ar -> {
-                if (ar.succeeded()) {
-                    logger.info("Verticle [{0}] started successfully.", verticle.shortName);
-                    startFuture.complete();
-                 } else {
-                    startFuture.fail(ar.cause());
-                }
-            });
+            logger.info("Starting verticle [{0}] with {1} instance(s)...", verticle.shortName, instancesToStart);
+
+            if (verticle.implementation == null) {
+                /* TODO For initializing projects only */
+                startFuture.complete();
+                logger.info("Verticle [{0}] not yet implemented, skipping.", verticle.shortName);
+            } else {
+                logger.info("Deploying verticle class [{0}]", verticle.implementation.getName());
+                vertx.deployVerticle(verticle.implementation.getName(), verticle.deploymentOptions, ar -> {
+                    if (ar.succeeded()) {
+                        logger.info("Verticle [{0}] started successfully.", verticle.shortName);
+                        startFuture.complete();
+                    } else {
+                        startFuture.fail(ar.cause());
+                    }
+                });
+            }
         }
+
         return startFuture;
     }
 }
