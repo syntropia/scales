@@ -4,7 +4,8 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
-import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 class DeploymentOptionsParser {
 
@@ -56,20 +57,13 @@ class DeploymentOptionsParser {
      */
     static void parseVerticleDeploymentOptionsJsonFile() {
 
-        JsonObject customDeploymentOptions = null;
-        try (InputStream is = DeploymentOptionsParser.class.getClassLoader().getResourceAsStream(verticleDeploymentOptionsJsonFileName)) {
-            if (is != null) {
-                customDeploymentOptions = new JsonObject(is.toString());
-            }
-        } catch (Exception ignore) {
-        }
-
-        if (customDeploymentOptions != null) {
+        JsonObject verticlesDeploymentOptions = getVerticlesDeploymentOptionsFromConfigFile();
+        if (verticlesDeploymentOptions != null) {
             logger.info("Loading verticle deployment options from JSON file: {0}", verticleDeploymentOptionsJsonFileName);
-            parseConfigForVerticle(customDeploymentOptions, Verticle.EventStore);
-            parseConfigForVerticle(customDeploymentOptions, Verticle.Command);
-            parseConfigForVerticle(customDeploymentOptions, Verticle.Query);
-            parseConfigForVerticle(customDeploymentOptions, Verticle.Facade);
+            parseConfigForVerticle(verticlesDeploymentOptions, Verticle.EventStore);
+            parseConfigForVerticle(verticlesDeploymentOptions, Verticle.Command);
+            parseConfigForVerticle(verticlesDeploymentOptions, Verticle.Query);
+            parseConfigForVerticle(verticlesDeploymentOptions, Verticle.Facade);
         } else {
             logger.info("No JSON files provided in classpath. Using Vert.x default deployment options for all verticles.");
         }
@@ -77,14 +71,25 @@ class DeploymentOptionsParser {
         initializeFacadeDefaultOptions();
     }
 
-    private static void parseConfigForVerticle(JsonObject customProperties, Verticle verticle) {
-        JsonObject customVerticleOptions = customProperties.getJsonObject(verticle.shortName);
+    private static JsonObject getVerticlesDeploymentOptionsFromConfigFile() {
+        JsonObject verticlesDeploymentOptions = null;
+        try {
+            String jsonFileContents = new String(Files.readAllBytes(Paths.get(verticleDeploymentOptionsJsonFileName)));
+            verticlesDeploymentOptions = new JsonObject(jsonFileContents);
+        } catch (Exception ignore) {
+            ignore.printStackTrace();
+        }
+        return verticlesDeploymentOptions;
+    }
+
+    private static void parseConfigForVerticle(JsonObject verticlesDeploymentOptions, Verticle verticle) {
+        JsonObject customVerticleOptions = verticlesDeploymentOptions.getJsonObject(verticle.shortName);
         if (customVerticleOptions != null) {
             verticle.deploymentOptions.fromJson(customVerticleOptions);
             logger.info("Deployment options parsed for verticle [{0}]. {1} instance(s) will be deployed.", verticle.shortName, verticle.deploymentOptions.getInstances());
         } else {
             verticle.deploymentOptions.setInstances(0);
-            logger.warn("Deployment options NOT FOUND for verticle [{0}], it will NOT be deployed. Prefer setting options for all verticles and use \"instances\":0 for those you don't want deployed.", verticle.shortName);
+            logger.warn("Deployment options NOT FOUND for verticle [{0}], it will NOT be deployed. Prefer setting options for all verticles and use \"instances\":0 for those you don't want to deploy.", verticle.shortName);
         }
     }
 
