@@ -44,13 +44,14 @@ Feature: The Indicator aggregate
     Then it should fail with message "An indicator can be archived only when it has a Draft, Published or Evolved status."
 
 
-  Scenario: An Indicator can be archived if it is used by scales that are also archived
-
+  Scenario: An Indicator can be archived if it is used by one scale that is also archived
     Given a Published Indicator
     And an Archived Scale using this Indicator
     When I archive this Indicator
     Then the Indicator status should be Archived
 
+
+  Scenario: An Indicator can be archived if it is used by several scales that are also archived
     Given a Published Indicator
     And an Archived Scale using this Indicator
     And another Archived Scale using this Indicator
@@ -58,29 +59,43 @@ Feature: The Indicator aggregate
     Then the Indicator status should be Archived
 
 
-  Scenario: An Indicator cannot be archived if one of its using scales is not archived
+  Scenario Outline: An Indicator cannot be archived if a scale using it is not archived
     Given a Published Indicator
-    And a Draft Scale using this Indicator
+    And a <scaleStatus> Scale using this Indicator
     When I archive this Indicator
     Then it should fail with message "An indicator can be archived only if no Scale is using it or if all Scales using it are also archived."
 
+    Examples:
+    | scaleStatus |
+    | Draft       |
+    | Published   |
+    | Evolved     |
+
+
+  Scenario Outline: An Indicator cannot be archived if one of several scales using it is not archived
     Given a Published Indicator
-    And a Published Scale using this Indicator
+    And a <firstScaleStatus> Scale using this Indicator
+    And another <secondScaleStatus> Scale using this Indicator
     When I archive this Indicator
     Then it should fail with message "An indicator can be archived only if no Scale is using it or if all Scales using it are also archived."
 
-    Given a Published Indicator
-    And an Archived Scale using this Indicator
-    And another Draft Scale using this Indicator
-    When I archive this Indicator
-    Then it should fail with message "An indicator can be archived only if no Scale is using it or if all Scales using it are also archived."
-
-    Given a Published Indicator
-    And an Archived Scale using this Indicator
-    And another Published Scale using this Indicator
-    When I archive this Indicator
-    Then it should fail with message "An indicator can be archived only if no Scale is using it or if all Scales using it are also archived."
-
+    Examples:
+    | firstScaleStatus | secondScaleStatus |
+    | Draft            | Draft             |
+    | Draft            | Published         |
+    | Draft            | Archived          |
+    | Draft            | Evolved           |
+    | Published        | Draft             |
+    | Published        | Published         |
+    | Published        | Archived          |
+    | Published        | Evolved           |
+    | Archived         | Draft             |
+    | Archived         | Published         |
+    | Archived         | Evolved           |
+    | Evolved          | Draft             |
+    | Evolved          | Published         |
+    | Evolved          | Archived          |
+    | Evolved          | Evolved           |
 
   Scenario: Unarchiving an Indicator puts its state back into Published
     Given an Archived Indicator
