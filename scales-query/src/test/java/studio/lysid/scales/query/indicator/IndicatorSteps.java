@@ -77,42 +77,38 @@ public class IndicatorSteps {
     @When("^I (publish|archive|unarchive) this Indicator$")
     public void iOperateThisIndicator(String operation) {
         this.thrownException = null;
-        if (operation == null) {
-            fail("Unexpected test operation [" + operation + "] on the Indicator");
-        } else {
-            switch (operation) {
-                case "publish":
-                    try {
-                        this.someIndicator.publish();
-                    } catch (Exception e) {
-                        this.thrownException = e;
-                    }
-                    break;
+        switch (operation) {
+            case "publish":
+                try {
+                    this.someIndicator.publish();
+                } catch (Exception e) {
+                    this.thrownException = e;
+                }
+                break;
 
-                case "archive":
-                    List<ScaleAggregate> scalesUsingThisIndicator = null;
-                    if (this.someScale != null) {
-                        if (this.anotherScale != null) {
-                            scalesUsingThisIndicator = Arrays.asList(this.someScale, this.anotherScale);
-                        } else {
-                            scalesUsingThisIndicator = Arrays.asList(this.someScale);
-                        }
+            case "archive":
+                List<ScaleAggregate> scalesUsingThisIndicator = null;
+                if (this.someScale != null) {
+                    if (this.anotherScale != null) {
+                        scalesUsingThisIndicator = Arrays.asList(this.someScale, this.anotherScale);
+                    } else {
+                        scalesUsingThisIndicator = Arrays.asList(this.someScale);
                     }
-                    try {
-                        this.someIndicator.archive(scalesUsingThisIndicator);
-                    } catch (Exception e) {
-                        this.thrownException = e;
-                    }
-                    break;
+                }
+                try {
+                    this.someIndicator.archive(scalesUsingThisIndicator);
+                } catch (Exception e) {
+                    this.thrownException = e;
+                }
+                break;
 
-                case "unarchive":
-                    try {
-                        this.someIndicator.unarchive();
-                    } catch (Exception e) {
-                        this.thrownException = e;
-                    }
-                    break;
-            }
+            case "unarchive":
+                try {
+                    this.someIndicator.unarchive();
+                } catch (Exception e) {
+                    this.thrownException = e;
+                }
+                break;
         }
     }
 
