@@ -25,6 +25,7 @@ import studio.lysid.scales.query.scale.ScaleId;
 import studio.lysid.scales.query.scale.ScaleStatus;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -74,41 +75,43 @@ public class IndicatorSteps {
         this.someIndicator = createIndicatorWithStatus(new IndicatorId("someIndicator"), null);
     }
 
-    @When("^I (publish|archive|unarchive) this Indicator$")
-    public void iOperateThisIndicator(String operation) {
+    @When("^I publish this Indicator$")
+    public void iPublishThisIndicator() {
         this.thrownException = null;
-        switch (operation) {
-            case "publish":
-                try {
-                    this.someIndicator.publish();
-                } catch (Exception e) {
-                    this.thrownException = e;
-                }
-                break;
+        try {
+            this.someIndicator.publish();
+        } catch (Exception e) {
+            this.thrownException = e;
+        }
+    }
 
-            case "archive":
-                List<ScaleAggregate> scalesUsingThisIndicator = null;
-                if (this.someScale != null) {
-                    if (this.anotherScale != null) {
-                        scalesUsingThisIndicator = Arrays.asList(this.someScale, this.anotherScale);
-                    } else {
-                        scalesUsingThisIndicator = Arrays.asList(this.someScale);
-                    }
-                }
-                try {
-                    this.someIndicator.archive(scalesUsingThisIndicator);
-                } catch (Exception e) {
-                    this.thrownException = e;
-                }
-                break;
+    @When("^I archive this Indicator$")
+    public void iArchiveThisIndicator() {
+        this.thrownException = null;
 
-            case "unarchive":
-                try {
-                    this.someIndicator.unarchive();
-                } catch (Exception e) {
-                    this.thrownException = e;
-                }
-                break;
+        List<ScaleAggregate> scalesUsingThisIndicator = null;
+        if (this.someScale != null) {
+            if (this.anotherScale != null) {
+                scalesUsingThisIndicator = Arrays.asList(this.someScale, this.anotherScale);
+            } else {
+                scalesUsingThisIndicator = Collections.singletonList(this.someScale);
+            }
+        }
+
+        try {
+            this.someIndicator.archive(scalesUsingThisIndicator);
+        } catch (Exception e) {
+            this.thrownException = e;
+        }
+    }
+
+    @When("^I unarchive this Indicator$")
+    public void iUnarchiveThisIndicator() {
+        this.thrownException = null;
+        try {
+            this.someIndicator.unarchive();
+        } catch (Exception e) {
+            this.thrownException = e;
         }
     }
 
