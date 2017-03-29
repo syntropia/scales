@@ -98,11 +98,17 @@ Feature: The Indicator aggregate
       | Evolved          | Evolved           |
     
     
-  Scenario: Unarchiving an Indicator changes its state back into Published
-    Given an Archived Indicator
+  Scenario Outline: Unarchiving an Indicator changes its state back into its original state
+    Given an Archived Indicator previously in <previousState> state
     When I unarchive this Indicator
-    Then its status should be Published
+    Then its status should be <previousState>
   
+    Examples:
+    | previousState |
+    | Draft         |
+    | Published     |
+    | Evolved       |
+    
   
   Scenario Outline: Only Archived Indicator can be unarchived
     Given an <initialState> Indicator

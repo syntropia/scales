@@ -35,6 +35,7 @@ public class IndicatorAggregate {
     }
 
     private IndicatorStatus status;
+    private IndicatorStatus statusBeforeArchiving;
     public IndicatorStatus getStatus() {
         return this.status;
     }
@@ -71,6 +72,7 @@ public class IndicatorAggregate {
             throw new IllegalStateException("An indicator can be archived only when it has a Draft, Published or Evolved status.");
         }
 
+        this.statusBeforeArchiving = this.status;
         this.status = IndicatorStatus.Archived;
         this.version++;
     }
@@ -79,7 +81,8 @@ public class IndicatorAggregate {
         if (this.status != IndicatorStatus.Archived) {
             throw new IllegalStateException("An indicator can be unarchived only when it has an Archived status.");
         }
-        this.status = IndicatorStatus.Published;
+        this.status = this.statusBeforeArchiving;
+        this.statusBeforeArchiving = null;
         this.version++;
     }
 

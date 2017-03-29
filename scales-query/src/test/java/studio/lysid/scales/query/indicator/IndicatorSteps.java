@@ -166,6 +166,12 @@ public class IndicatorSteps {
         this.anotherIndicator = createIndicatorWithStatus(new IndicatorId("anotherIndicator"), IndicatorStatus.valueOf(statusName));
     }
 
+    @Given("^an Archived Indicator previously in (Draft|Published|Evolved) state$")
+    public void anArchivedIndicatorPreviouslyState(String statusName) {
+        this.someIndicator = createIndicatorWithStatus(new IndicatorId("someIndicator"), IndicatorStatus.valueOf(statusName));
+        this.someIndicator.archive(null);
+    }
+
     @When("^I evolve one into the other$")
     public void iEvolveOneIntoTheOther() {
         this.someIndicator.evolveInto(this.anotherIndicator.getId());
@@ -180,4 +186,5 @@ public class IndicatorSteps {
     public void itShouldDesignateTheLatterAsItsEvolvedVersion() {
         assertEquals(this.someIndicator.getEvolvedInto(), this.anotherIndicator.getId());
     }
+
 }
