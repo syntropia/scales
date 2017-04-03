@@ -15,10 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package studio.lysid.scales.query;
+package studio.lysid.scales.query.indicator;
 
+import cucumber.api.CucumberOptions;
 import cucumber.api.junit.Cucumber;
 import org.junit.runner.RunWith;
 
 @RunWith(Cucumber.class)
-public class QueryTest {}
+@CucumberOptions(
+        features = "/Users/fredo/Documents/Lysid studio/Projects/Scales/Source/Vert_x/scales-query/src/test/resources/studio/lysid/scales/query/indicator",
+        glue = "studio.lysid.scales.query.indicator")
+public class IndicatorTest {}
