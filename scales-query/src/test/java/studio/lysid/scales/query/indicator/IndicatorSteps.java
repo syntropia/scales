@@ -17,12 +17,14 @@
 
 package studio.lysid.scales.query.indicator;
 
+import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import studio.lysid.scales.query.scale.ScaleAggregate;
 import studio.lysid.scales.query.scale.ScaleId;
 import studio.lysid.scales.query.scale.ScaleStatus;
+import studio.lysid.scales.query.scale.ScaleSteps;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,6 +41,19 @@ public class IndicatorSteps {
 
     private ScaleAggregate someScale;
     private ScaleAggregate anotherScale;
+
+
+
+    @Before()
+    public void prepareForNewScenario() {
+        this.thrownException = null;
+        this.someIndicator = null;
+        this.anotherIndicator = null;
+        this.someScale = null;
+        this.anotherScale = null;
+    }
+
+
 
     @Given("^(?:a|an) (Draft|Published|Archived|Evolved) Indicator$")
     public void aStatusIndicator(String statusName) {
@@ -77,7 +92,6 @@ public class IndicatorSteps {
 
     @When("^I publish this Indicator$")
     public void iPublishThisIndicator() {
-        this.thrownException = null;
         try {
             this.someIndicator.publish();
         } catch (Exception e) {
@@ -87,7 +101,6 @@ public class IndicatorSteps {
 
     @When("^I archive this Indicator$")
     public void iArchiveThisIndicator() {
-        this.thrownException = null;
 
         List<ScaleAggregate> scalesUsingThisIndicator = null;
         if (this.someScale != null) {
@@ -107,7 +120,6 @@ public class IndicatorSteps {
 
     @When("^I unarchive this Indicator$")
     public void iUnarchiveThisIndicator() {
-        this.thrownException = null;
         try {
             this.someIndicator.unarchive();
         } catch (Exception e) {
@@ -130,41 +142,17 @@ public class IndicatorSteps {
 
     @Given("^(?:a|an) (Draft|Published|Archived|Evolved) Scale using this Indicator$")
     public void aScaleUsingThisIndicator(String scaleStatusName) {
-        this.someScale = new ScaleAggregate(new ScaleId("someScale"));
-        setScaleInitialStatus(this.someScale, scaleStatusName);
+        this.someScale = ScaleSteps.createScaleWithStatus(new ScaleId("someScale"), ScaleStatus.valueOf(scaleStatusName));
         this.someScale.attachIndicator(this.someIndicator.getId());
     }
 
     @Given("^another (Draft|Published|Archived|Evolved) Scale using this Indicator$")
     public void anotherScaleUsingThisIndicator(String scaleStatusName) {
-        this.anotherScale = new ScaleAggregate(new ScaleId("someOtherScale"));
-        setScaleInitialStatus(this.anotherScale, scaleStatusName);
+        this.anotherScale = ScaleSteps.createScaleWithStatus(new ScaleId("someOtherScale"), ScaleStatus.valueOf(scaleStatusName));
         this.anotherScale.attachIndicator(this.someIndicator.getId());
     }
 
-    private void setScaleInitialStatus(ScaleAggregate scale, String statusName) {
-        ScaleStatus requestedScaleStatus = ScaleStatus.valueOf(statusName);
-        switch (requestedScaleStatus) {
-            case Draft:
-                // Nothing to do
-                break;
-
-            case Published:
-                scale.publish();
-                break;
-
-            case Archived:
-                scale.archive();
-                break;
-
-            case Evolved:
-                scale.publish();
-                scale.evolveInto(new ScaleId("someEvolvingScale"));
-                break;
-        }
-    }
-
-    @Given("^another (Draft|Published|Archived|Evolved) Indicator")
+    @Given("^another (Draft|Published|Archived|Evolved) Indicator$")
     public void anotherDraftIndicatorNamed(String statusName) {
         this.anotherIndicator = createIndicatorWithStatus(new IndicatorId("anotherIndicator"), IndicatorStatus.valueOf(statusName));
     }
@@ -180,7 +168,7 @@ public class IndicatorSteps {
         this.someIndicator.evolveInto(this.anotherIndicator.getId());
     }
 
-    @Then("^the former Indicator status should be (Draft|Published|Archived|Evolved)")
+    @Then("^the former Indicator status should be (Draft|Published|Archived|Evolved)$")
     public void indicatorStatusShouldBeEvolved(String statusName) {
         assertEquals(this.someIndicator.getStatus(), IndicatorStatus.valueOf(statusName));
     }
