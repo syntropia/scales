@@ -23,6 +23,7 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 public class ScaleSteps {
@@ -79,9 +80,19 @@ public class ScaleSteps {
         assertEquals(this.someScale.getStatus(), ScaleStatus.valueOf(statusName));
     }
 
-
     @When("^I publish this Scale$")
     public void iPublishThisScale() {
-        this.someScale.publish();
+        try {
+            this.someScale.publish();
+        } catch (Exception e) {
+            this.thrownException = e;
+        }
+    }
+
+    @Then("^it should fail with message \"([^\"]*)\"$")
+    public void itShouldThrowAnIllegalStateExceptionWithMessage(String message) {
+        assertNotNull(this.thrownException);
+        assertEquals(this.thrownException.getClass(), IllegalStateException.class);
+        assertEquals(this.thrownException.getMessage(), message);
     }
 }

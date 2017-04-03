@@ -50,6 +50,9 @@ public class ScaleAggregate {
 
 
     public void publish() {
+        if (this.status != ScaleStatus.Draft) {
+            throw new IllegalStateException("A Scale can be published only when it has a Draft status.");
+        }
         this.status = ScaleStatus.Published;
         this.version++;
     }
