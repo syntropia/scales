@@ -19,9 +19,13 @@ package studio.lysid.scales.query.scale;
 
 import studio.lysid.scales.query.indicator.IndicatorId;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ScaleAggregate {
 
     private final ScaleId id;
+
     public ScaleId getId() { return this.id; }
 
 
@@ -39,6 +43,7 @@ public class ScaleAggregate {
         return this.evolvedInto;
     }
 
+    private List<IndicatorId> attachedIndicators;
 
 
     public ScaleAggregate(ScaleId id) {
@@ -81,7 +86,17 @@ public class ScaleAggregate {
         this.evolvedInto = newScale;
     }
 
-    public void attachIndicator(IndicatorId id) {
-        // TODO
+    public void attachIndicator(IndicatorId indicator) {
+        if (this.status != ScaleStatus.Draft) {
+            throw new IllegalStateException("A Scale can be edited only when it has a Draft status.");
+        }
+        if (this.attachedIndicators == null) {
+            this.attachedIndicators = new ArrayList<>();
+        }
+        this.attachedIndicators.add(indicator);
+    }
+
+    public List<IndicatorId> getAttachedIndicators() {
+        return attachedIndicators;
     }
 }

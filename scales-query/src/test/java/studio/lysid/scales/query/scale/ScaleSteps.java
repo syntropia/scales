@@ -17,11 +17,17 @@
 
 package studio.lysid.scales.query.scale;
 
+import cucumber.api.DataTable;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import studio.lysid.scales.query.indicator.IndicatorId;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -32,10 +38,13 @@ public class ScaleSteps {
     private ScaleAggregate someScale;
     private ScaleAggregate anotherScale;
 
+    private HashMap<String, IndicatorId> someIndicators;
+
     @Before()
     public void prepareForNewScenario() {
         this.thrownException = null;
         this.someScale = null;
+        this.someIndicators = new HashMap<>(5);
     }
 
 
@@ -138,5 +147,66 @@ public class ScaleSteps {
     @Then("^it should designate the latter as its evolved version$")
     public void itShouldDesignateTheLatterAsItsEvolvedVersion() {
         assertEquals(this.someScale.getEvolvedInto(), this.anotherScale.getId());
+    }
+
+    @Given("^an Indicator named \"([^\"]*)\"$")
+    public void anIndicatorNamed(String indicatorName) {
+        this.someIndicators.put(indicatorName, new IndicatorId(indicatorName));
+    }
+
+    @Then("^the Scale should contain \"([^\"]*)\"$")
+    public void theScaleShouldContain(String indicatorName) {
+        IndicatorId expectedIndicator = this.someIndicators.get(indicatorName);
+        assertTrue(this.someScale.getAttachedIndicators().contains(expectedIndicator));
+    }
+
+    @When("^the Indicator \"([^\"]*)\" is attached to the Scale$")
+    public void theIndicatorIsAttachedToTheScale(String indicatorName) {
+        try {
+            this.someScale.attachIndicator(this.someIndicators.get(indicatorName));
+        } catch (Exception e) {
+            this.thrownException = e;
+        }
+    }
+
+    @When("^I attach an Indicator to the Scale$")
+    public void iAttachAnIndicatorToTheScale() {
+        final String indicatorName = "someIndicator";
+        final IndicatorId someIndicator = new IndicatorId(indicatorName);
+        this.someIndicators.put(indicatorName, someIndicator);
+        try {
+            this.someScale.attachIndicator(someIndicator);
+        } catch (Exception e) {
+            this.thrownException = e;
+        }
+    }
+
+    @Given("^the following Indicators:$")
+    public void theFollowingIndicators(DataTable indicatorNamesTable) {
+        List<Map<String, String>> indicatorNameRows = indicatorNamesTable.asMaps(String.class, String.class);
+        for (Map<String, String> indicatorNameRow : indicatorNameRows) {
+            String indicatorName = indicatorNameRow.get("indicatorName");
+            this.someIndicators.put(indicatorName, new IndicatorId(indicatorName));
+        }
+    }
+
+    @When("^these Indicators are attached to the Scale$")
+    public void theseIndicatorsAreAttachedToTheScale() {
+        for (IndicatorId indicator : this.someIndicators.values()) {
+            this.someScale.attachIndicator(indicator);
+        }
+    }
+
+    @Then("^the Scale should contain exactly the following Indicators:$")
+    public void theScaleShouldContainTheFollowingIndicators(DataTable expectedIndicatorNameTable) {
+        List<IndicatorId> scaleIndicators = this.someScale.getAttachedIndicators();
+        List<Map<String, String>> expectedIndicatorNameRows = expectedIndicatorNameTable.asMaps(String.class, String.class);
+        assertEquals(scaleIndicators.size(), expectedIndicatorNameRows.size());
+
+        for (Map<String, String> expectedIndicatorNameRow : expectedIndicatorNameRows) {
+            String expectedIndicatorName = expectedIndicatorNameRow.get("indicatorName");
+            IndicatorId expectedIndicator = this.someIndicators.get(expectedIndicatorName);
+            assertTrue(scaleIndicators.contains(expectedIndicator));
+        }
     }
 }
