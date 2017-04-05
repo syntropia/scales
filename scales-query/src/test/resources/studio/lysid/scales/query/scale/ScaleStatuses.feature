@@ -1,6 +1,6 @@
-Feature: The Scale aggregate
+Feature: The Scale aggregate statuses
   
-  Test the business rules and invariants for the Scale aggregate.
+  Test the business rules and invariants for the Scale aggregate various statuses
   
   
   Scenario: A Scale is created in Draft state
