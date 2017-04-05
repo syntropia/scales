@@ -31,8 +31,8 @@ public class ScaleAggregate {
     }
 
     private ScaleStatus status;
+    private ScaleStatus statusBeforeArchiving;
     public ScaleStatus getStatus() { return this.status; }
-
 
     private ScaleId evolvedInto;
     public ScaleId getEvolvedInto() {
@@ -59,12 +59,19 @@ public class ScaleAggregate {
 
 
     public void archive() {
+        if (this.status == ScaleStatus.Archived) {
+            throw new IllegalStateException("A Scale can be archived only when it has a Draft, Published or Evolved status.");
+        }
+        this.statusBeforeArchiving = this.status;
         this.status = ScaleStatus.Archived;
         this.version++;
     }
 
     public void unarchive() {
-        this.status = ScaleStatus.Published;
+        if (this.status != ScaleStatus.Archived) {
+            throw new IllegalStateException("A Scale can be unarchived only when it has an Archived status.");
+        }
+        this.status = this.statusBeforeArchiving;
         this.version++;
     }
 

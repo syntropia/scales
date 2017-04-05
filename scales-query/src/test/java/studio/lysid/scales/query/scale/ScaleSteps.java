@@ -18,19 +18,19 @@
 package studio.lysid.scales.query.scale;
 
 import cucumber.api.java.Before;
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 public class ScaleSteps {
 
     private Exception thrownException;
 
     private ScaleAggregate someScale;
+    private ScaleAggregate anotherScale;
 
     @Before()
     public void prepareForNewScenario() {
@@ -89,10 +89,54 @@ public class ScaleSteps {
         }
     }
 
+    @When("^I archive this Scale$")
+    public void iArchiveThisScale() {
+        try {
+            this.someScale.archive();
+        } catch (Exception e) {
+            this.thrownException = e;
+        }
+    }
+
     @Then("^it should fail with message \"([^\"]*)\"$")
     public void itShouldThrowAnIllegalStateExceptionWithMessage(String message) {
         assertNotNull(this.thrownException);
         assertEquals(this.thrownException.getClass(), IllegalStateException.class);
         assertEquals(this.thrownException.getMessage(), message);
+    }
+
+    @When("^I unarchive this Scale$")
+    public void iUnarchiveThisScale() {
+        try {
+            this.someScale.unarchive();
+        } catch (Exception e) {
+            this.thrownException = e;
+        }
+    }
+
+    @Given("^an Archived Scale previously in (Draft|Published|Archived|Evolved) state$")
+    public void anArchivedScalePreviouslyInState(String statusName) {
+        this.someScale = createScaleWithStatus(new ScaleId("someScale"), ScaleStatus.valueOf(statusName));
+        this.someScale.archive();
+    }
+
+    @And("^another (Draft|Published|Archived|Evolved) Scale$")
+    public void anotherScale(String statusName) {
+        this.anotherScale = createScaleWithStatus(new ScaleId("anotherScale"), ScaleStatus.valueOf(statusName));
+    }
+
+    @When("^I evolve one into the other$")
+    public void iEvolveOneIntoTheOther() {
+        this.someScale.evolveInto(this.anotherScale.getId());
+    }
+
+    @Then("^the former Scale status should be (Draft|Published|Archived|Evolved)")
+    public void theFormerScaleStatusShouldBe(String statusName) {
+        assertEquals(this.someScale.getStatus(), ScaleStatus.valueOf(statusName));
+    }
+
+    @Then("^it should designate the latter as its evolved version$")
+    public void itShouldDesignateTheLatterAsItsEvolvedVersion() {
+        assertEquals(this.someScale.getEvolvedInto(), this.anotherScale.getId());
     }
 }
