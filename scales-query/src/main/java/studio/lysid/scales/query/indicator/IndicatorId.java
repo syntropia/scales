@@ -17,18 +17,11 @@
 
 package studio.lysid.scales.query.indicator;
 
-public class IndicatorId {
+import studio.lysid.scales.query.AggregateId;
 
-    private final String uuid;
-
-    public String getUuid() {
-        return uuid;
-    }
-
-
+public class IndicatorId extends AggregateId {
 
     public IndicatorId(String uuid) {
-        this.uuid = uuid;
+        super(uuid);
     }
-
 }

@@ -15,13 +15,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package studio.lysid.scales.query.scale;
+package studio.lysid.scales.query;
 
-import studio.lysid.scales.query.AggregateId;
+public abstract class AggregateId {
 
-public class ScaleId extends AggregateId {
+    private final String uuid;
 
-    public ScaleId(String uuid) {
-        super(uuid);
+    public String getUuid() {
+        return uuid;
+    }
+
+    protected AggregateId(String uuid) {
+        if (uuid == null || uuid == "") {
+            throw new IllegalArgumentException("An Indicator id cannot be null or empty String");
+        }
+        this.uuid = uuid;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return (this == obj || obj instanceof AggregateId && this.uuid.equals(((AggregateId) obj).uuid));
     }
 }
