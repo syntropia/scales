@@ -20,6 +20,7 @@ package studio.lysid.scales.query.scale;
 import studio.lysid.scales.query.indicator.IndicatorId;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ScaleAggregate {
@@ -92,11 +93,36 @@ public class ScaleAggregate {
         }
         if (this.attachedIndicators == null) {
             this.attachedIndicators = new ArrayList<>();
+        } else if (this.attachedIndicators.contains(indicator)) {
+            throw new IllegalStateException("The indicator '" + indicator.getUuid() + "' is already attached to the Scale. An Indicator can be used only once in a Scale.");
         }
         this.attachedIndicators.add(indicator);
     }
 
-    public List<IndicatorId> getAttachedIndicators() {
-        return attachedIndicators;
+    public int getIndicatorCount() {
+        return (this.attachedIndicators != null ? this.attachedIndicators.size() : 0);
+    }
+
+    public IndicatorId getIndicatorAtPosition(int position) {
+        if (this.attachedIndicators == null) {
+            throw new IllegalStateException("No Indicator has been added to this scale yet");
+        }
+        return this.attachedIndicators.get(position);
+    }
+
+    public void setIndicatorsOrder(List<IndicatorId> reorderedIndicators) {
+        if (this.attachedIndicators == null) {
+            throw new IllegalStateException("No Indicator has been added to this scale yet");
+        }
+        int reorderedIndicatorsSize = reorderedIndicators.size();
+        for (int i = 0; i < reorderedIndicatorsSize; i++) {
+            IndicatorId reorderedIndicator = reorderedIndicators.get(i);
+            int indicatorPreviousPosition = this.attachedIndicators.indexOf(reorderedIndicator);
+            if (indicatorPreviousPosition == -1) {
+                throw new IllegalArgumentException("The Indicator '" + reorderedIndicator.getUuid() + "' was not previously attached to this scale");
+            }
+            Collections.swap(this.attachedIndicators, indicatorPreviousPosition, i);
+        }
     }
 }
+
