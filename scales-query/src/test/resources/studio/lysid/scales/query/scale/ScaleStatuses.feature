@@ -66,7 +66,7 @@ Feature: The Scale aggregate statuses
     
   Scenario Outline: A Scale can be edited only in Draft state
     Given a <initialState> Scale
-    When I attach an Indicator to the Scale
+    When the Indicator "someIndicator" is attached to the Scale
     Then it should fail with message "A Scale can be edited only when it has a Draft status."
     
     Examples:
@@ -74,24 +74,3 @@ Feature: The Scale aggregate statuses
       | Published    |
       | Archived     |
       | Evolved      |
-    
-  Scenario: An Indicator can be attached to a Draft Scale
-    Given a Draft Scale
-    And an Indicator named "FirstIndicator"
-    When the Indicator "FirstIndicator" is attached to the Scale
-    Then the Scale should contain "FirstIndicator"
-    
-  Scenario: Several Indicators can be attached to a Draft Scale
-    Given a Draft Scale
-    And the following Indicators:
-      | indicatorName   |
-      | FirstIndicator  |
-      | SecondIndicator |
-      | ThirdIndicator  |
-    When these Indicators are attached to the Scale
-    Then the Scale should contain exactly the following Indicators:
-      | indicatorName   |
-      | FirstIndicator  |
-      | SecondIndicator |
-      | ThirdIndicator  |
-    
