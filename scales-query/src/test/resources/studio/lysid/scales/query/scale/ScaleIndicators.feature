@@ -24,5 +24,16 @@ Feature: The Scale aggregate Indicators
     Given a Draft Scale with the following Indicators attached: A, B, C, D, E
     When the Indicators are reordered like this: A, C, E, B, D
     Then the Scale should contain exactly the following Indicators: A, C, E, B, D
+  
+    
+  Scenario: Reordered indicators must match already attached indicators
+    Given a Draft Scale with the following Indicators attached: A, B, C
+    When the Indicators are reordered like this: A, C, E, B, D
+    Then it should fail with message "The Indicator 'E' was not previously attached to this scale"
     
     
+  Scenario: Reordered indicators cannot apply to a Scale without any indicator
+    Given a Draft Scale
+    When the Indicators are reordered like this: A, C, E, B, D
+    Then it should fail with message "No Indicator has been added to this scale yet"
+

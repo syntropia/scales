@@ -105,7 +105,6 @@ public class ScaleSteps {
     @Then("^it should fail with message \"([^\"]*)\"$")
     public void itShouldThrowAnIllegalStateExceptionWithMessage(String message) {
         assertNotNull(this.thrownException);
-        assertEquals(this.thrownException.getClass(), IllegalStateException.class);
         assertEquals(this.thrownException.getMessage(), message);
     }
 
