@@ -127,5 +127,18 @@ public class ScaleAggregate {
             Collections.swap(this.attachedIndicators, indicatorPreviousPosition, i);
         }
     }
+
+    public void detachIndicator(IndicatorId indicator) {
+        if (this.status != ScaleStatus.Draft) {
+            throw new IllegalStateException("A Scale can be edited only when it has a Draft status.");
+        }
+        if (this.attachedIndicators == null) {
+            throw new IllegalStateException("No Indicator has been added to this scale yet");
+        }
+        if (!this.attachedIndicators.contains(indicator)) {
+            throw new IllegalArgumentException("The Indicator '" + indicator.getUuid() + "' was not previously attached to this scale");
+        }
+        this.attachedIndicators.remove(indicator);
+    }
 }
 

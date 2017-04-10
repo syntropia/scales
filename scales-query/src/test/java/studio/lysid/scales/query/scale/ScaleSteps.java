@@ -103,7 +103,7 @@ public class ScaleSteps {
     }
 
     @Then("^it should fail with message \"([^\"]*)\"$")
-    public void itShouldThrowAnIllegalStateExceptionWithMessage(String message) {
+    public void itShouldFailWithMessage(String message) {
         assertNotNull(this.thrownException);
         assertEquals(this.thrownException.getMessage(), message);
     }
@@ -194,6 +194,15 @@ public class ScaleSteps {
                         .collect(toList());
         try {
             this.someScale.setIndicatorsOrder(reorderedIndicators);
+        } catch (Exception e) {
+            this.thrownException = e;
+        }
+    }
+
+    @When("^the Indicator \"([^\"]*)\" is detached from the Scale$")
+    public void theIndicatorIsDetachedFromTheScale(String indicatorName) {
+        try {
+            this.someScale.detachIndicator(new IndicatorId(indicatorName));
         } catch (Exception e) {
             this.thrownException = e;
         }
