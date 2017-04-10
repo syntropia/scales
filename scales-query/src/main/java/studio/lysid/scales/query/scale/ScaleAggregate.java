@@ -88,9 +88,7 @@ public class ScaleAggregate {
     }
 
     public void attachIndicator(IndicatorId indicator) {
-        if (this.status != ScaleStatus.Draft) {
-            throw new IllegalStateException("A Scale can be edited only when it has a Draft status.");
-        }
+        ensureDraftStatus();
         if (this.attachedIndicators == null) {
             this.attachedIndicators = new ArrayList<>();
         } else if (this.attachedIndicators.contains(indicator)) {
@@ -99,24 +97,9 @@ public class ScaleAggregate {
         this.attachedIndicators.add(indicator);
     }
 
-    public int getIndicatorCount() {
-        return (this.attachedIndicators != null ? this.attachedIndicators.size() : 0);
-    }
-
-    public IndicatorId getIndicatorAtPosition(int position) {
-        if (this.attachedIndicators == null) {
-            throw new IllegalStateException("No Indicator has been added to this scale yet");
-        }
-        return this.attachedIndicators.get(position);
-    }
-
     public void setIndicatorsOrder(List<IndicatorId> reorderedIndicators) {
-        if (this.status != ScaleStatus.Draft) {
-            throw new IllegalStateException("A Scale can be edited only when it has a Draft status.");
-        }
-        if (this.attachedIndicators == null) {
-            throw new IllegalStateException("No Indicator has been added to this scale yet");
-        }
+        ensureDraftStatus();
+        ensureIndicatorsAttached();
         int reorderedIndicatorsSize = reorderedIndicators.size();
         for (int i = 0; i < reorderedIndicatorsSize; i++) {
             IndicatorId reorderedIndicator = reorderedIndicators.get(i);
@@ -129,16 +112,35 @@ public class ScaleAggregate {
     }
 
     public void detachIndicator(IndicatorId indicator) {
-        if (this.status != ScaleStatus.Draft) {
-            throw new IllegalStateException("A Scale can be edited only when it has a Draft status.");
-        }
-        if (this.attachedIndicators == null) {
-            throw new IllegalStateException("No Indicator has been added to this scale yet");
-        }
+        ensureDraftStatus();
+        ensureIndicatorsAttached();
         if (!this.attachedIndicators.contains(indicator)) {
             throw new IllegalArgumentException("The Indicator '" + indicator.getUuid() + "' was not previously attached to this scale");
         }
         this.attachedIndicators.remove(indicator);
     }
+
+    private void ensureDraftStatus() {
+        if (this.status != ScaleStatus.Draft) {
+            throw new IllegalStateException("A Scale can be edited only when it has a Draft status.");
+        }
+    }
+
+    private void ensureIndicatorsAttached() {
+        if (this.attachedIndicators == null) {
+            throw new IllegalStateException("No Indicator has been added to this scale yet");
+        }
+    }
+
+    public int getIndicatorCount() {
+        return (this.attachedIndicators != null ? this.attachedIndicators.size() : 0);
+    }
+
+    public IndicatorId getIndicatorAtPosition(int position) {
+        ensureIndicatorsAttached();
+        return this.attachedIndicators.get(position);
+    }
+
+
 }
 
