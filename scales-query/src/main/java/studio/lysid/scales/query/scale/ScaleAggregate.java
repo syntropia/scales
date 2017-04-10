@@ -111,6 +111,9 @@ public class ScaleAggregate {
     }
 
     public void setIndicatorsOrder(List<IndicatorId> reorderedIndicators) {
+        if (this.status != ScaleStatus.Draft) {
+            throw new IllegalStateException("A Scale can be edited only when it has a Draft status.");
+        }
         if (this.attachedIndicators == null) {
             throw new IllegalStateException("No Indicator has been added to this scale yet");
         }

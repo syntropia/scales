@@ -64,7 +64,7 @@ Feature: The Scale aggregate statuses
     And it should designate the latter as its evolved version
     
     
-  Scenario Outline: A Scale can be edited only in Draft state
+  Scenario Outline: Indicators can be attached to a Scale only in Draft state
     Given a <initialState> Scale
     When the Indicator "someIndicator" is attached to the Scale
     Then it should fail with message "A Scale can be edited only when it has a Draft status."
@@ -74,3 +74,32 @@ Feature: The Scale aggregate statuses
       | Published    |
       | Archived     |
       | Evolved      |
+    
+    
+    Scenario Outline: Indicators can be reordered in a Scale only in Draft state
+    Given a <initialState> Scale
+    When the Indicators are reordered like this: A, B, C
+    Then it should fail with message "A Scale can be edited only when it has a Draft status."
+    
+    Examples:
+      | initialState |
+      | Published    |
+      | Archived     |
+      | Evolved      |
+    
+    
+    
+    
+    Scenario Outline: Indicators can be detached from a Scale only in Draft state
+    Given a <initialState> Scale
+    When the Indicator "someIndicator" is detached from the Scale
+    Then it should fail with message "A Scale can be edited only when it has a Draft status."
+    
+    Examples:
+      | initialState |
+      | Published    |
+      | Archived     |
+      | Evolved      |
+    
+    
+      
