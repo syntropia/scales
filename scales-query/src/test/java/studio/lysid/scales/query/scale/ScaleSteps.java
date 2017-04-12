@@ -24,7 +24,12 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import studio.lysid.scales.query.indicator.IndicatorId;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.*;
@@ -36,16 +41,44 @@ public class ScaleSteps {
     private ScaleAggregate someScale;
     private ScaleAggregate anotherScale;
 
+    private IndicatorGroupVO someGroup;
+    private Map<String, IndicatorId> indicatorForName;
+    private Map<String, ScaleId> scaleForName;
+
     @Before()
     public void prepareForNewScenario() {
         this.thrownException = null;
         this.someScale = null;
+        this.someGroup = null;
+        this.indicatorForName = new HashMap<>();
+        this.scaleForName = new HashMap<>();
+    }
+
+    private IndicatorId getIndicatorFromName(String name) {
+        IndicatorId indicator = this.indicatorForName.get(name);
+        if (indicator == null) {
+            indicator = new IndicatorId(UUID.randomUUID());
+            this.indicatorForName.put(name, indicator);
+        }
+        return indicator;
+    }
+
+    private ScaleId getScaleFromName(String name) {
+        ScaleId scale = this.scaleForName.get(name);
+        if (scale == null) {
+            scale = new ScaleId(UUID.randomUUID());
+            this.scaleForName.put(name, scale);
+        }
+        return scale;
     }
 
 
+
+    // Status-related steps
+
     @Given("^(?:a|an) (Draft|Published|Archived|Evolved) Scale$")
     public void aStatusScale(String statusName) {
-        this.someScale = createScaleWithStatus(new ScaleId("someScale"), ScaleStatus.valueOf(statusName));
+        this.someScale = createScaleWithStatus(getScaleFromName("someScale"), ScaleStatus.valueOf(statusName));
     }
 
     public static ScaleAggregate createScaleWithStatus(ScaleId id, ScaleStatus status) {
@@ -66,7 +99,7 @@ public class ScaleSteps {
 
                 case Evolved:
                     newScale.publish();
-                    newScale.evolveInto(new ScaleId("someEvolvingScale"));
+                    newScale.evolveInto(new ScaleId(UUID.randomUUID()));
                     break;
             }
         }
@@ -75,7 +108,7 @@ public class ScaleSteps {
 
     @When("^I create a new Scale$")
     public void iCreateANewScale() {
-        this.someScale = createScaleWithStatus(new ScaleId("someScale"), null);
+        this.someScale = createScaleWithStatus(getScaleFromName("someScale"), null);
     }
 
     @Then("^(?:its|the Scale) status should be (Draft|Published|Archived|Evolved)$")
@@ -105,7 +138,17 @@ public class ScaleSteps {
     @Then("^it should fail with message \"([^\"]*)\"$")
     public void itShouldFailWithMessage(String message) {
         assertNotNull(this.thrownException);
-        assertEquals(this.thrownException.getMessage(), message);
+
+        // Replace Indicator names by their UUID
+        StringBuffer messageWithUUIDs = new StringBuffer();
+        Matcher m = Pattern.compile("Indicator '(.+?)'").matcher(message);
+        while (m.find()) {
+            String indicatorUUID = this.getIndicatorFromName(m.group(1)).getUuid().toString();
+            m.appendReplacement(messageWithUUIDs, "Indicator '" + indicatorUUID + "'");
+        }
+        m.appendTail(messageWithUUIDs);
+
+        assertEquals(this.thrownException.getMessage(), messageWithUUIDs.toString());
     }
 
     @When("^I unarchive this Scale$")
@@ -119,13 +162,13 @@ public class ScaleSteps {
 
     @Given("^an Archived Scale previously in (Draft|Published|Archived|Evolved) state$")
     public void anArchivedScalePreviouslyInState(String statusName) {
-        this.someScale = createScaleWithStatus(new ScaleId("someScale"), ScaleStatus.valueOf(statusName));
+        this.someScale = createScaleWithStatus(getScaleFromName("someScale"), ScaleStatus.valueOf(statusName));
         this.someScale.archive();
     }
 
     @And("^another (Draft|Published|Archived|Evolved) Scale$")
     public void anotherScale(String statusName) {
-        this.anotherScale = createScaleWithStatus(new ScaleId("anotherScale"), ScaleStatus.valueOf(statusName));
+        this.anotherScale = createScaleWithStatus(getScaleFromName("anotherScale"), ScaleStatus.valueOf(statusName));
     }
 
     @When("^I evolve one into the other$")
@@ -145,13 +188,13 @@ public class ScaleSteps {
 
 
 
-    // Indicator-related steps
+    // Indicator attaching steps
 
     @Given("^a (Draft|Published|Archived|Evolved) Scale with the following Indicators attached: (.*)$")
     public void aScaleWithTheFollowingIndicatorsAttached(String scaleStatus, List<String> indicatorNames) {
-        this.someScale = createScaleWithStatus(new ScaleId("someScale"), ScaleStatus.valueOf(scaleStatus));
+        this.someScale = createScaleWithStatus(getScaleFromName("someScale"), ScaleStatus.valueOf(scaleStatus));
         for (String indicatorName : indicatorNames) {
-            this.someScale.attachIndicator(new IndicatorId(indicatorName));
+            this.someScale.attachIndicator(getIndicatorFromName(indicatorName));
         }
     }
 
@@ -159,19 +202,9 @@ public class ScaleSteps {
     @When("^the Indicator \"([^\"]*)\" is attached to the Scale$")
     public void theIndicatorIsAttachedToTheScale(String indicatorName) {
         try {
-            this.someScale.attachIndicator(new IndicatorId(indicatorName));
+            this.someScale.attachIndicator(getIndicatorFromName(indicatorName));
         } catch (Exception e) {
             this.thrownException = e;
-        }
-    }
-
-    @Then("^the Scale should contain exactly the following Indicators: (.*)$")
-    public void theScaleShouldContainTheFollowingIndicators(List<String> expectedIndicatorNames) {
-        int scaleIndicatorCount = this.someScale.getIndicatorCount();
-        assertEquals(scaleIndicatorCount, expectedIndicatorNames.size());
-        for (int i = 0; i < scaleIndicatorCount; i++) {
-            IndicatorId indicator = this.someScale.getIndicatorAtPosition(i);
-            assertTrue(expectedIndicatorNames.contains(indicator.getUuid()));
         }
     }
 
@@ -179,18 +212,39 @@ public class ScaleSteps {
     public void theFollowingIndicatorsAreAttachedToTheScale(List<String> indicatorNames) {
         for (String indicatorName : indicatorNames) {
             try {
-                this.someScale.attachIndicator(new IndicatorId(indicatorName));
+                this.someScale.attachIndicator(getIndicatorFromName(indicatorName));
             } catch (Exception e) {
                 this.thrownException = e;
             }
         }
     }
 
+    @Then("^the Scale should contain exactly the following Indicators: (.*)$")
+    public void theScaleShouldExactlyContainTheFollowingIndicators(List<String> expectedIndicatorNames) {
+        int scaleIndicatorCount = this.someScale.getIndicatorCount();
+        assertEquals(scaleIndicatorCount, expectedIndicatorNames.size());
+
+        for (int i = 0; i < scaleIndicatorCount; i++) {
+            String indicatorName = expectedIndicatorNames.get(i);
+            IndicatorId indicator;
+            try {
+                indicator = this.someScale.getIndicatorAtPosition(i);
+                assertTrue(indicator.equals(getIndicatorFromName(indicatorName)));
+            } catch (IllegalAccessException e) {
+                fail(e.getMessage());
+            }
+        }
+    }
+
+
+
+    // Indicator reordering steps
+
     @When("^the Indicators are reordered like this: (.*)$")
     public void theIndicatorsAreReorderedLikeThis(List<String> reorderedIndicatorNames) {
         List<IndicatorId> reorderedIndicators =
                 reorderedIndicatorNames.stream()
-                        .map(s -> new IndicatorId(s))
+                        .map(this::getIndicatorFromName)
                         .collect(toList());
         try {
             this.someScale.setIndicatorsOrder(reorderedIndicators);
@@ -199,12 +253,39 @@ public class ScaleSteps {
         }
     }
 
+
+
+    // Indicator detach steps
+
     @When("^the Indicator \"([^\"]*)\" is detached from the Scale$")
     public void theIndicatorIsDetachedFromTheScale(String indicatorName) {
         try {
-            this.someScale.detachIndicator(new IndicatorId(indicatorName));
+            this.someScale.detachIndicator(getIndicatorFromName(indicatorName));
         } catch (Exception e) {
             this.thrownException = e;
         }
     }
+
+
+
+    // Indicator grouping steps
+
+    @Given("^the Indicator group \"([^\"]*)\" containing the indicators: (.*)$")
+    public void theIndicatorGroupContainingTheIndicators(String groupName, List<String> indicators) {
+        this.someGroup = new IndicatorGroupVO(groupName, true);
+        for (String indicatorName : indicators) {
+            this.someGroup.attachIndicator(getIndicatorFromName(indicatorName));
+        }
+    }
+
+    @When("^it is attached to the Scale$")
+    public void itIsAttachedToTheScale() {
+        try {
+            this.someScale.attachGroup(this.someGroup);
+        } catch (Exception e) {
+            this.thrownException = e;
+        }
+    }
+
+
 }

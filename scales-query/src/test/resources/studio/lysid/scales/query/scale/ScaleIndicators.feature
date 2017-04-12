@@ -14,7 +14,7 @@ Feature: The Scale aggregate Indicators
   Scenario: An Indicator can be used only once in a Scale
     Given a Draft Scale with the following Indicators attached: A, B, C
     When the Indicator "A" is attached to the Scale
-    Then it should fail with message "The indicator 'A' is already attached to the Scale. An Indicator can be used only once in a Scale."
+    Then it should fail with message "The Indicator 'A' is already attached to the Scale. An Indicator can be used only once in a Scale."
   
   
   Scenario: Several Indicators can be attached to a Draft Scale

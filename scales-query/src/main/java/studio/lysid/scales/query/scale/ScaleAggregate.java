@@ -19,8 +19,6 @@ package studio.lysid.scales.query.scale;
 
 import studio.lysid.scales.query.indicator.IndicatorId;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class ScaleAggregate {
@@ -44,13 +42,13 @@ public class ScaleAggregate {
         return this.evolvedInto;
     }
 
-    private List<IndicatorId> attachedIndicators;
-
+    private IndicatorGroupVO rootGroup;
 
     public ScaleAggregate(ScaleId id) {
         this.id = id;
         this.version = 0;
         this.status = ScaleStatus.Draft;
+        this.rootGroup = new IndicatorGroupVO("__SCALE_ROOT_GROUP__", true);
     }
 
 
@@ -87,19 +85,36 @@ public class ScaleAggregate {
         this.evolvedInto = newScale;
     }
 
+
+
+    // Indicator methods
+
     public void attachIndicator(IndicatorId indicator) {
         ensureDraftStatus();
-        if (this.attachedIndicators == null) {
-            this.attachedIndicators = new ArrayList<>();
-        } else if (this.attachedIndicators.contains(indicator)) {
-            throw new IllegalStateException("The indicator '" + indicator.getUuid() + "' is already attached to the Scale. An Indicator can be used only once in a Scale.");
+        this.rootGroup.attachIndicator(indicator);
+    }
+
+    public int getIndicatorCount() {
+        return this.rootGroup.getIndicatorCount();
+    }
+
+    public boolean contains(IndicatorId indicator) {
+        return this.rootGroup.contains(indicator);
+    }
+
+    public IndicatorId getIndicatorAtPosition(int i) throws IllegalAccessException {
+        ScaleElement elementAtPosition = this.rootGroup.getElementAtPosition(i);
+        if (elementAtPosition instanceof IndicatorElement) {
+            return ((IndicatorElement) elementAtPosition).getIndicator();
+        } else {
+            throw new IllegalAccessException("Element at position " + i + " is not an Indicator");
         }
-        this.attachedIndicators.add(indicator);
     }
 
     public void setIndicatorsOrder(List<IndicatorId> reorderedIndicators) {
         ensureDraftStatus();
         ensureIndicatorsAttached();
+        /*
         int reorderedIndicatorsSize = reorderedIndicators.size();
         for (int i = 0; i < reorderedIndicatorsSize; i++) {
             IndicatorId reorderedIndicator = reorderedIndicators.get(i);
@@ -109,16 +124,34 @@ public class ScaleAggregate {
             }
             Collections.swap(this.attachedIndicators, indicatorPreviousPosition, i);
         }
+        */
     }
 
     public void detachIndicator(IndicatorId indicator) {
         ensureDraftStatus();
         ensureIndicatorsAttached();
-        if (!this.attachedIndicators.contains(indicator)) {
+        if (!this.rootGroup.detachIndicator(indicator)) {
             throw new IllegalArgumentException("The Indicator '" + indicator.getUuid() + "' was not previously attached to this scale");
         }
-        this.attachedIndicators.remove(indicator);
     }
+
+
+
+    // Indicator Group methods
+
+    public void attachGroup(IndicatorGroupVO group) {
+        ensureDraftStatus();
+        this.rootGroup.attachGroup(group);
+    }
+
+    public boolean contains(IndicatorGroupVO group) {
+        return this.rootGroup.contains(group);
+    }
+
+
+
+
+    // Helper methods
 
     private void ensureDraftStatus() {
         if (this.status != ScaleStatus.Draft) {
@@ -127,20 +160,9 @@ public class ScaleAggregate {
     }
 
     private void ensureIndicatorsAttached() {
-        if (this.attachedIndicators == null) {
+        if (getIndicatorCount() == 0) {
             throw new IllegalStateException("No Indicator has been added to this scale yet");
         }
     }
-
-    public int getIndicatorCount() {
-        return (this.attachedIndicators != null ? this.attachedIndicators.size() : 0);
-    }
-
-    public IndicatorId getIndicatorAtPosition(int position) {
-        ensureIndicatorsAttached();
-        return this.attachedIndicators.get(position);
-    }
-
-
 }
 
