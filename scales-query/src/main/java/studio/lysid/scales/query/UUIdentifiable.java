@@ -17,23 +17,8 @@
 
 package studio.lysid.scales.query;
 
-public abstract class AggregateId {
+import java.util.UUID;
 
-    private final String uuid;
-
-    public String getUuid() {
-        return uuid;
-    }
-
-    protected AggregateId(String uuid) {
-        if (uuid == null || uuid == "") {
-            throw new IllegalArgumentException("An Indicator id cannot be null or empty String");
-        }
-        this.uuid = uuid;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return (this == obj || obj instanceof AggregateId && this.uuid.equals(((AggregateId) obj).uuid));
-    }
+public interface UUIdentifiable {
+    UUID getUuid();
 }

@@ -17,11 +17,13 @@
 
 package studio.lysid.scales.query.scale;
 
-import studio.lysid.scales.query.AggregateId;
+import studio.lysid.scales.query.EntityId;
 
-public class ScaleId extends AggregateId {
+import java.util.UUID;
 
-    public ScaleId(String uuid) {
+public class ScaleId extends EntityId {
+
+    public ScaleId(UUID uuid) {
         super(uuid);
     }
 }

@@ -15,15 +15,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package studio.lysid.scales.query.indicator;
-
-import studio.lysid.scales.query.EntityId;
+package studio.lysid.scales.query;
 
 import java.util.UUID;
 
-public class IndicatorId extends EntityId {
+public abstract class EntityId implements UUIdentifiable {
 
-    public IndicatorId(UUID uuid) {
-        super(uuid);
+    private final UUID uuid;
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    protected EntityId(UUID uuid) {
+        if (uuid == null) {
+            throw new IllegalArgumentException("An Indicator UUID cannot be null");
+        }
+        this.uuid = uuid;
+    }
+
+    @Override
+    final public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || this.getClass() != o.getClass()) return false;
+
+        EntityId entityId = (EntityId) o;
+        return this.uuid.equals(entityId.uuid);
+    }
+
+    @Override
+    final public int hashCode() {
+        return this.uuid.hashCode();
     }
 }
