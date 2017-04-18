@@ -114,6 +114,7 @@ public class IndicatorGroup extends ScaleElement {
 
     boolean detachIndicator(IndicatorId indicator) {
         checkIsEditable();
+        checkIndicatorIsAttached(indicator);
 
         boolean indicatorFoundAndRemoved = false;
 
@@ -133,9 +134,15 @@ public class IndicatorGroup extends ScaleElement {
         return indicatorFoundAndRemoved;
     }
 
+    void reorderIndicators(List<IndicatorId> reorderedIndicators) {
+        checkIsEditable();
+        ensureIndicatorsAttached();
+        // TODO
+    }
 
 
-    // Group methods
+
+    // Group behaviors
 
     void attachGroup(IndicatorGroup group) {
         checkIsEditable();
@@ -143,7 +150,7 @@ public class IndicatorGroup extends ScaleElement {
         this.attachedElements.add(group);
     }
 
-    boolean contains(IndicatorGroup group) {
+    private boolean contains(IndicatorGroup group) {
         boolean found = false;
         int i = 0;
         int elementCount = this.attachedElements.size();
@@ -165,7 +172,7 @@ public class IndicatorGroup extends ScaleElement {
 
 
 
-    // Common helpers
+    // Guards
 
     private void checkIsEditable() {
         if (!this.isEditable) {
@@ -178,6 +185,22 @@ public class IndicatorGroup extends ScaleElement {
             throw new IllegalStateException("The Indicator Group '" + group.name + "' is already attached to the Scale. An Indicator Group can be used only once in a Scale.");
         }
     }
+
+    private void checkIndicatorIsAttached(IndicatorId indicator) {
+        if (!contains(indicator)) {
+            throw new IllegalArgumentException("The Indicator '" + indicator.getUuid() + "' was not previously attached to this scale");
+        }
+    }
+
+    private void ensureIndicatorsAttached() {
+        if (getIndicatorCount() == 0) {
+            throw new IllegalStateException("No Indicator has been added to this scale yet");
+        }
+    }
+
+
+
+    // Helpers
 
     ScaleElement getElementAtPosition(int i) {
         return this.attachedElements.get(i);

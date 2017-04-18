@@ -100,26 +100,12 @@ public class ScaleAggregate {
 
     public void reorderIndicators(List<IndicatorId> reorderedIndicators) {
         ensureDraftStatus();
-        ensureIndicatorsAttached();
-        /*
-        int reorderedIndicatorsSize = reorderedIndicators.size();
-        for (int i = 0; i < reorderedIndicatorsSize; i++) {
-            IndicatorId reorderedIndicator = reorderedIndicators.get(i);
-            int indicatorPreviousPosition = this.attachedIndicators.indexOf(reorderedIndicator);
-            if (indicatorPreviousPosition == -1) {
-                throw new IllegalArgumentException("The Indicator '" + reorderedIndicator.getUuid() + "' was not previously attached to this scale");
-            }
-            Collections.swap(this.attachedIndicators, indicatorPreviousPosition, i);
-        }
-        */
+        this.rootGroup.reorderIndicators(reorderedIndicators);
     }
 
     public void detachIndicator(IndicatorId indicator) {
         ensureDraftStatus();
-        ensureIndicatorsAttached();
-        if (!this.rootGroup.detachIndicator(indicator)) {
-            throw new IllegalArgumentException("The Indicator '" + indicator.getUuid() + "' was not previously attached to this scale");
-        }
+        this.rootGroup.detachIndicator(indicator);
     }
 
 
@@ -138,12 +124,6 @@ public class ScaleAggregate {
     private void ensureDraftStatus() {
         if (this.status != ScaleStatus.Draft) {
             throw new IllegalStateException("A Scale can be edited only when it has a Draft status.");
-        }
-    }
-
-    private void ensureIndicatorsAttached() {
-        if (getIndicatorCount() == 0) {
-            throw new IllegalStateException("No Indicator has been added to this scale yet");
         }
     }
 }
