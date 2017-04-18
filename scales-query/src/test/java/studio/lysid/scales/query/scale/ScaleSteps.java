@@ -41,7 +41,7 @@ public class ScaleSteps {
     private ScaleAggregate someScale;
     private ScaleAggregate anotherScale;
 
-    private IndicatorGroupVO someGroup;
+    private IndicatorGroup someGroup;
     private Map<String, IndicatorId> indicatorForName;
     private Map<String, ScaleId> scaleForName;
 
@@ -247,7 +247,7 @@ public class ScaleSteps {
                         .map(this::getIndicatorFromName)
                         .collect(toList());
         try {
-            this.someScale.setIndicatorsOrder(reorderedIndicators);
+            this.someScale.reorderIndicators(reorderedIndicators);
         } catch (Exception e) {
             this.thrownException = e;
         }
@@ -272,7 +272,7 @@ public class ScaleSteps {
 
     @Given("^the Indicator group \"([^\"]*)\" containing the indicators: (.*)$")
     public void theIndicatorGroupContainingTheIndicators(String groupName, List<String> indicators) {
-        this.someGroup = new IndicatorGroupVO(groupName, true);
+        this.someGroup = new IndicatorGroup(groupName, true);
         for (String indicatorName : indicators) {
             this.someGroup.attachIndicator(getIndicatorFromName(indicatorName));
         }

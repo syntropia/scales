@@ -29,6 +29,7 @@ import studio.lysid.scales.query.scale.ScaleSteps;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.Assert.*;
 
@@ -57,7 +58,7 @@ public class IndicatorSteps {
 
     @Given("^(?:a|an) (Draft|Published|Archived|Evolved) Indicator$")
     public void aStatusIndicator(String statusName) {
-        this.someIndicator = createIndicatorWithStatus(new IndicatorId("someIndicator"), IndicatorStatus.valueOf(statusName));
+        this.someIndicator = createIndicatorWithStatus(new IndicatorId(UUID.fromString("someIndicator")), IndicatorStatus.valueOf(statusName));
     }
 
     private IndicatorAggregate createIndicatorWithStatus(IndicatorId id, IndicatorStatus status) {
@@ -78,7 +79,7 @@ public class IndicatorSteps {
 
                 case Evolved:
                     newIndicator.publish();
-                    newIndicator.evolveInto(new IndicatorId("someEvolvingIndicator"));
+                    newIndicator.evolveInto(new IndicatorId(UUID.fromString("someEvolvingIndicator")));
                     break;
             }
         }
@@ -87,7 +88,7 @@ public class IndicatorSteps {
 
     @When("^I create a new Indicator$")
     public void iCreateANewIndicator() {
-        this.someIndicator = createIndicatorWithStatus(new IndicatorId("someIndicator"), null);
+        this.someIndicator = createIndicatorWithStatus(new IndicatorId(UUID.fromString("someIndicator")), null);
     }
 
     @When("^I publish this Indicator$")
@@ -142,24 +143,24 @@ public class IndicatorSteps {
 
     @Given("^(?:a|an) (Draft|Published|Archived|Evolved) Scale using this Indicator$")
     public void aScaleUsingThisIndicator(String scaleStatusName) {
-        this.someScale = ScaleSteps.createScaleWithStatus(new ScaleId("someScale"), ScaleStatus.valueOf(scaleStatusName));
+        this.someScale = ScaleSteps.createScaleWithStatus(new ScaleId(UUID.fromString("someScale")), ScaleStatus.valueOf(scaleStatusName));
         this.someScale.attachIndicator(this.someIndicator.getId());
     }
 
     @Given("^another (Draft|Published|Archived|Evolved) Scale using this Indicator$")
     public void anotherScaleUsingThisIndicator(String scaleStatusName) {
-        this.anotherScale = ScaleSteps.createScaleWithStatus(new ScaleId("someOtherScale"), ScaleStatus.valueOf(scaleStatusName));
+        this.anotherScale = ScaleSteps.createScaleWithStatus(new ScaleId(UUID.fromString("someOtherScale")), ScaleStatus.valueOf(scaleStatusName));
         this.anotherScale.attachIndicator(this.someIndicator.getId());
     }
 
     @Given("^another (Draft|Published|Archived|Evolved) Indicator$")
     public void anotherDraftIndicatorNamed(String statusName) {
-        this.anotherIndicator = createIndicatorWithStatus(new IndicatorId("anotherIndicator"), IndicatorStatus.valueOf(statusName));
+        this.anotherIndicator = createIndicatorWithStatus(new IndicatorId(UUID.fromString("anotherIndicator")), IndicatorStatus.valueOf(statusName));
     }
 
     @Given("^an Archived Indicator previously in (Draft|Published|Evolved) state$")
     public void anArchivedIndicatorPreviouslyState(String statusName) {
-        this.someIndicator = createIndicatorWithStatus(new IndicatorId("someIndicator"), IndicatorStatus.valueOf(statusName));
+        this.someIndicator = createIndicatorWithStatus(new IndicatorId(UUID.fromString("someIndicator")), IndicatorStatus.valueOf(statusName));
         this.someIndicator.archive(null);
     }
 

@@ -23,33 +23,50 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class IndicatorGroupVO extends ScaleElement {
+public class IndicatorGroup extends ScaleElement {
 
     private String name;
-    public String getName() { return this.name; }
+    void setName(String name) {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Indicator Group name must not be empty!");
+        }
+        this.name = name;
+    }
+
 
     private boolean isEditable;
-    void setEditable(boolean editable) {
+    private void setEditable(boolean editable) {
         this.isEditable = editable;
         this.attachedElements.stream()
-                .filter(element -> element.getClass().equals(IndicatorGroupVO.class))
-                .forEach(indicatorGroupVO -> ((IndicatorGroupVO) indicatorGroupVO).isEditable = editable);
+                .filter(element -> element.getClass().equals(IndicatorGroup.class))
+                .forEach(indicatorGroupVO -> ((IndicatorGroup) indicatorGroupVO).isEditable = editable);
     }
+
 
 
     private List<ScaleElement> attachedElements;
 
-    public IndicatorGroupVO(String name, boolean isEditable) {
-        this.name = name;
-        this.isEditable = isEditable;
+    IndicatorGroup(String name, boolean isEditable) {
         this.attachedElements = new ArrayList<>();
+        this.setName(name);
+        this.setEditable(isEditable);
     }
 
 
 
-    // Indicator methods
+    // Indicator behaviors
 
-    public void attachIndicator(IndicatorId indicator) {
+    void makeEditable() {
+        this.setEditable(true);
+    }
+
+    void makeReadOnly() {
+        this.setEditable(false);
+    }
+
+
+
+    void attachIndicator(IndicatorId indicator) {
         checkIsEditable();
         checkDoesNotContain(indicator);
         this.attachedElements.add(new IndicatorElement(indicator));
@@ -61,7 +78,7 @@ public class IndicatorGroupVO extends ScaleElement {
         }
     }
 
-    boolean contains(IndicatorId indicator) {
+    private boolean contains(IndicatorId indicator) {
         boolean found = false;
         int i = 0;
         int elementCount = this.attachedElements.size();
@@ -70,8 +87,8 @@ public class IndicatorGroupVO extends ScaleElement {
             ScaleElement attachedElement = this.attachedElements.get(i);
             if (attachedElement instanceof IndicatorElement) {
                 found = (((IndicatorElement) attachedElement).getIndicator().equals(indicator));
-            } else if (attachedElement instanceof IndicatorGroupVO) {
-                found = ((IndicatorGroupVO) attachedElement).contains(indicator);
+            } else if (attachedElement instanceof IndicatorGroup) {
+                found = ((IndicatorGroup) attachedElement).contains(indicator);
             } else {
                 throw new UnsupportedOperationException("Attached ScaleElement is of unsupported type: " + attachedElement.getClass().getCanonicalName());
             }
@@ -86,8 +103,8 @@ public class IndicatorGroupVO extends ScaleElement {
         for (ScaleElement attachedElement : this.attachedElements) {
             if (attachedElement instanceof IndicatorElement) {
                 count++;
-            } else if (attachedElement instanceof IndicatorGroupVO) {
-                count += ((IndicatorGroupVO) attachedElement).getIndicatorCount();
+            } else if (attachedElement instanceof IndicatorGroup) {
+                count += ((IndicatorGroup) attachedElement).getIndicatorCount();
             } else {
                 throw new UnsupportedOperationException("Attached ScaleElement is of unsupported type: " + attachedElement.getClass().getCanonicalName());
             }
@@ -95,7 +112,7 @@ public class IndicatorGroupVO extends ScaleElement {
         return count;
     }
 
-    public boolean detachIndicator(IndicatorId indicator) {
+    boolean detachIndicator(IndicatorId indicator) {
         checkIsEditable();
 
         boolean indicatorFoundAndRemoved = false;
@@ -108,8 +125,8 @@ public class IndicatorGroupVO extends ScaleElement {
                     indicatorFoundAndRemoved = true;
                     break;
                 }
-            } else if (element instanceof IndicatorGroupVO) {
-                indicatorFoundAndRemoved = ((IndicatorGroupVO) element).detachIndicator(indicator);
+            } else if (element instanceof IndicatorGroup) {
+                indicatorFoundAndRemoved = ((IndicatorGroup) element).detachIndicator(indicator);
             }
         }
 
@@ -120,20 +137,13 @@ public class IndicatorGroupVO extends ScaleElement {
 
     // Group methods
 
-    public void attachGroup(IndicatorGroupVO group) {
+    void attachGroup(IndicatorGroup group) {
         checkIsEditable();
         checkDoesNotContain(group);
         this.attachedElements.add(group);
     }
 
-
-    private void checkDoesNotContain(IndicatorGroupVO group) {
-        if (this.contains(group)) {
-            throw new IllegalStateException("The Indicator Group '" + group.getName() + "' is already attached to the Scale. An Indicator Group can be used only once in a Scale.");
-        }
-    }
-
-    boolean contains(IndicatorGroupVO group) {
+    boolean contains(IndicatorGroup group) {
         boolean found = false;
         int i = 0;
         int elementCount = this.attachedElements.size();
@@ -142,8 +152,8 @@ public class IndicatorGroupVO extends ScaleElement {
             ScaleElement attachedElement = this.attachedElements.get(i);
             if (attachedElement instanceof IndicatorElement) {
                 found = false;
-            } else if (attachedElement instanceof IndicatorGroupVO) {
-                found = attachedElement.equals(group) || ((IndicatorGroupVO) attachedElement).contains(group);
+            } else if (attachedElement instanceof IndicatorGroup) {
+                found = attachedElement.equals(group) || ((IndicatorGroup) attachedElement).contains(group);
             } else {
                 throw new UnsupportedOperationException("Attached ScaleElement is of unsupported type: " + attachedElement.getClass().getCanonicalName());
             }
@@ -163,7 +173,14 @@ public class IndicatorGroupVO extends ScaleElement {
         }
     }
 
+    private void checkDoesNotContain(IndicatorGroup group) {
+        if (this.contains(group)) {
+            throw new IllegalStateException("The Indicator Group '" + group.name + "' is already attached to the Scale. An Indicator Group can be used only once in a Scale.");
+        }
+    }
+
     ScaleElement getElementAtPosition(int i) {
         return this.attachedElements.get(i);
     }
+
 }

@@ -27,12 +27,6 @@ public class ScaleAggregate {
 
     public ScaleId getId() { return this.id; }
 
-
-    private Integer version;
-    public Integer getVersion() {
-        return this.version;
-    }
-
     private ScaleStatus status;
     private ScaleStatus statusBeforeArchiving;
     public ScaleStatus getStatus() { return this.status; }
@@ -42,23 +36,23 @@ public class ScaleAggregate {
         return this.evolvedInto;
     }
 
-    private IndicatorGroupVO rootGroup;
+    private IndicatorGroup rootGroup;
 
     public ScaleAggregate(ScaleId id) {
         this.id = id;
-        this.version = 0;
         this.status = ScaleStatus.Draft;
-        this.rootGroup = new IndicatorGroupVO("__SCALE_ROOT_GROUP__", true);
+        this.rootGroup = new IndicatorGroup("__SCALE_ROOT_GROUP__", true);
     }
 
 
+
+    // Scale behaviors
 
     public void publish() {
         if (this.status != ScaleStatus.Draft) {
             throw new IllegalStateException("A Scale can be published only when it has a Draft status.");
         }
         this.status = ScaleStatus.Published;
-        this.version++;
     }
 
 
@@ -68,7 +62,6 @@ public class ScaleAggregate {
         }
         this.statusBeforeArchiving = this.status;
         this.status = ScaleStatus.Archived;
-        this.version++;
     }
 
     public void unarchive() {
@@ -76,18 +69,16 @@ public class ScaleAggregate {
             throw new IllegalStateException("A Scale can be unarchived only when it has an Archived status.");
         }
         this.status = this.statusBeforeArchiving;
-        this.version++;
     }
 
     public void evolveInto(ScaleId newScale) {
         this.status = ScaleStatus.Evolved;
-        this.version++;
         this.evolvedInto = newScale;
     }
 
 
 
-    // Indicator methods
+    // Indicator management behaviors
 
     public void attachIndicator(IndicatorId indicator) {
         ensureDraftStatus();
@@ -96,10 +87,6 @@ public class ScaleAggregate {
 
     public int getIndicatorCount() {
         return this.rootGroup.getIndicatorCount();
-    }
-
-    public boolean contains(IndicatorId indicator) {
-        return this.rootGroup.contains(indicator);
     }
 
     public IndicatorId getIndicatorAtPosition(int i) throws IllegalAccessException {
@@ -111,7 +98,7 @@ public class ScaleAggregate {
         }
     }
 
-    public void setIndicatorsOrder(List<IndicatorId> reorderedIndicators) {
+    public void reorderIndicators(List<IndicatorId> reorderedIndicators) {
         ensureDraftStatus();
         ensureIndicatorsAttached();
         /*
@@ -137,21 +124,16 @@ public class ScaleAggregate {
 
 
 
-    // Indicator Group methods
+    // Indicator Group management behaviors
 
-    public void attachGroup(IndicatorGroupVO group) {
+    public void attachGroup(IndicatorGroup group) {
         ensureDraftStatus();
         this.rootGroup.attachGroup(group);
     }
 
-    public boolean contains(IndicatorGroupVO group) {
-        return this.rootGroup.contains(group);
-    }
 
 
-
-
-    // Helper methods
+    // Guards
 
     private void ensureDraftStatus() {
         if (this.status != ScaleStatus.Draft) {
